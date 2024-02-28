@@ -103,7 +103,7 @@ function Cdag(site, spin, state)
     return new_state
 end
 
-function Hint!(Nsites, labels, U)
+function Hint(Nsites, labels, U)
     Hdim = length(labels)
     UHam = spzeros(Float32, Hdim, Hdim)
     for i = 1:Nsites
@@ -266,7 +266,7 @@ indices_sim = Symmetries(true, true, Nsitios%2, Nsitios, indices)
 Hdim = length(indices_sim)
 
 t = 1
-U = 2  #@time
+U = 10  #@time
 
 #Hmu = Honsite(Nsitios, indices_sim, U/2)
 #Ht = Hhopping(Nsitios, indices_sim, t)
@@ -281,7 +281,7 @@ U = 2  #@time
 
 #eigvals, eigvecs= eigs(H, nev = 1, which=:SR, ritzvec = true)
 function rolha()
-    onsite = LinRange(0, U, 20)
+    onsite = LinRange(0, U, 50)
 
     #onsite = -U/2
 
@@ -316,15 +316,15 @@ using CSV
 
 #print(mu)
 
-x = .-(1/2 .-onsite./U)
+x = (1/2 .-onsite./U)
 ind_ = sortperm(x) 
 #print(x[ind_])
-CSV.write("U=2.csv", (mu = mu./U, x))
+#CSV.write("U=2.csv", (mu = mu./U, x))
 
 #print(mu)
 
-#p = plot(x, mu./U, seriestype=:scatter)
-#display(p)
+p = plot(x[ind_], .-mu./U, seriestype=:scatter)
+display(p)
 
 #eigvals = data.values
 #print(eigvals)

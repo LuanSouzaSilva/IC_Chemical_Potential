@@ -38,13 +38,13 @@ function Hubbard_DMRG(Nsites, t, U, ed)
 
     H = MPO(os,sites)
 
-    psi0 = random_mps(sites;linkdims=10) #Esse comando de Random_MPS so funciona se conserve_qns = false
+    psi0 = random_mps(sites;linkdims=3) #Esse comando de Random_MPS so funciona se conserve_qns = false
 
     #state = [isodd(n) ? "Up" : "Dn" for n=1:Nsites]
     #psi0 = MPS(sites,state)
 
-    nsweeps = 6
-    maxdim = [10, 20, 100, 200, 400, 800]
+    nsweeps = 5
+    maxdim = [10, 20, 100, 200, 400]
     cutoff = [1E-12]
 
     GS_energy, GS = dmrg(H,psi0;nsweeps,maxdim,cutoff, outputlevel = 0)
@@ -90,8 +90,8 @@ function Npart_DMRG(Nsites, t, U, ed, Npart)
     end
     psi0 = MPS(sites,state)
 
-    nsweeps = 6
-    maxdim = [10, 20, 100, 200, 400, 800]
+    nsweeps = 5
+    maxdim = [10, 20, 100, 200, 400]
     cutoff = [1E-12]
 
     GS_energy, GS = dmrg(H,psi0;nsweeps,maxdim,cutoff, outputlevel = 0)
@@ -123,17 +123,17 @@ function Chemical_Potential(Nsites, Ed_arr, t, U)
     return Chem_Pot
 end
 
-nsites = 20
+nsites = 5
 u = 10
-ed_arr =  LinRange(-1.0*u, 0, 50) #-u/2 +- u/2
+ed_arr =  LinRange(-0.9*u, -0.7*u, 100) #-u/2 +- u/2
 
-Chem_Pot = Chemical_Potential(nsites, ed_arr, 1, u)
+@time Chem_Pot = Chemical_Potential(nsites, ed_arr, 1, u)
 
 
 df = DataFrame(Onsite_Energy = ed_arr,
                 Chemical_Potential = Chem_Pot)
 
-CSV.write("IC_Chemical_Potential/DMRG/DMRG_CSVs\\N20U10.csv", df)
+CSV.write("IC_Chemical_Potential/DMRG/DMRG_CSVs\\TESTE.csv", df)
 
 #p = scatter(1/2 .+ ed_arr./u, Chem_Pot./u)
 #display(p)

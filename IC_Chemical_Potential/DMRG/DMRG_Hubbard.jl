@@ -37,11 +37,7 @@ function Hubbard_DMRG(Nsites, t, U, ed)
 
     H = MPO(os,sites)
 
-<<<<<<< HEAD
-    psi0 = random_mps(sites;linkdims=3) #Esse comando de Random_MPS so funciona se conserve_qns = false
-=======
     psi0 = randomMPS(sites;linkdims=10) #Esse comando de Random_MPS so funciona se conserve_qns = false
->>>>>>> 280a5f26d7bed2e42184cf337e63160cfea6e4e2
 
     #state = [isodd(n) ? "Up" : "Dn" for n=1:Nsites]
     #psi0 = MPS(sites,state)
@@ -126,22 +122,20 @@ function Chemical_Potential(Nsites, Ed_arr, t, U)
     return Chem_Pot
 end
 
-<<<<<<< HEAD
 nsites = 5
 u = 10
 ed_arr =  LinRange(-0.9*u, -0.7*u, 100) #-u/2 +- u/2
 
-@time Chem_Pot = Chemical_Potential(nsites, ed_arr, 1, u)
+#@time Chem_Pot = Chemical_Potential(nsites, ed_arr, 1, u)
 
 
 df = DataFrame(Onsite_Energy = ed_arr,
                 Chemical_Potential = Chem_Pot)
 
-CSV.write("IC_Chemical_Potential/DMRG/DMRG_CSVs\\TESTE.csv", df)
+#CSV.write("IC_Chemical_Potential/DMRG/DMRG_CSVs\\TESTE.csv", df)
 
 #p = scatter(1/2 .+ ed_arr./u, Chem_Pot./u)
 #display(p)
-=======
 function Roda_N(U, nsites_arr, filenames)
     ed_arr =  LinRange(-0.9*U, -0.75*U, 100) #-u/2 +- u/2
 
@@ -161,5 +155,4 @@ Filenames = ["U10N10.csv", "U10N20.csv", "U10N40.csv", "U10N60.csv", "U10N100.cs
 
 u = 10
 
-Roda_N(u, Nsites, Filenames)
->>>>>>> 280a5f26d7bed2e42184cf337e63160cfea6e4e2
+#Roda_N(u, Nsites, Filenames)

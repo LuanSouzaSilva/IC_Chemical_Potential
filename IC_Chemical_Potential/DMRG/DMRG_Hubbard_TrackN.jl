@@ -87,3 +87,5 @@ end
 
 p = scatter(1/2 .+ ed_arr./U, Chem_pot./U)
 display(p)
+
+#AA

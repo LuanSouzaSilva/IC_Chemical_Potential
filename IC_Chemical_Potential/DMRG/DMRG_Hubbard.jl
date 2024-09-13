@@ -43,7 +43,7 @@ function Hubbard_DMRG(Nsites, t, U, ed)
     #psi0 = MPS(sites,state)
 
     nsweeps = 5
-    maxdim = [10, 20, 100, 200, 400]
+    maxdim = [10, 20, 100, 200, 400, 500]
     cutoff = [1E-12]
 
     GS_energy, GS = dmrg(H,psi0;nsweeps,maxdim,cutoff, outputlevel = 0)
@@ -90,7 +90,7 @@ function Npart_DMRG(Nsites, t, U, ed, Npart)
     psi0 = randomMPS(sites,state, linkdims = 10)
 
     nsweeps = 5
-    maxdim = [10, 20, 100, 200, 400]
+    maxdim = [10, 20, 100, 200, 400, 800]
     cutoff = [1E-12]
 
     GS_energy, GS = dmrg(H,psi0;nsweeps,maxdim,cutoff, outputlevel = 0)
@@ -129,8 +129,8 @@ ed_arr =  LinRange(-0.9*u, -0.7*u, 100) #-u/2 +- u/2
 #@time Chem_Pot = Chemical_Potential(nsites, ed_arr, 1, u)
 
 
-df = DataFrame(Onsite_Energy = ed_arr,
-                Chemical_Potential = Chem_Pot)
+#df = DataFrame(Onsite_Energy = ed_arr,
+#                Chemical_Potential = Chem_Pot)
 
 #CSV.write("IC_Chemical_Potential/DMRG/DMRG_CSVs\\TESTE.csv", df)
 

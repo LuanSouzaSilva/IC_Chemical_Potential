@@ -19,8 +19,8 @@ function Hubbard_DMRG(Nsites, t, U, ed)
 
     os = OpSum()
     for j=1:Nsites
-        os += ed, "Nup",j
-        os += ed,"Ndn",j
+        os += -ed, "Nup",j
+        os += -ed,"Ndn",j
     end
 
     for j=1:Nsites-1
@@ -58,8 +58,8 @@ function Npart_DMRG(Nsites, t, U, ed, Npart)
 
     os = OpSum()
     for j=1:Nsites
-        os += ed, "Nup",j
-        os += ed,"Ndn",j
+        os += -ed, "Nup",j
+        os += -ed,"Ndn",j
     end
 
     for j=1:Nsites-1
@@ -123,7 +123,7 @@ function Chemical_Potential(Nsites, Ed_arr, t, U)
 end
 
 function Roda_N(U, nsites_arr, filenames)
-    ed_arr =  LinRange(-0.9*U, -0.75*U, 100) #-u/2 +- u/2
+    ed_arr =  LinRange(0.9*U, 0.75*U, 100) #u/2 +- u/2
 
     for i in eachindex(nsites_arr)
         Chem_Pot = Chemical_Potential(nsites_arr[i], ed_arr, 1, U)

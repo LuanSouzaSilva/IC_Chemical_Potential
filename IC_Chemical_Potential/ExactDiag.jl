@@ -1,12 +1,14 @@
 using Pkg
+
+Pkg.add("Combinatorics")
+
 using Combinatorics
 using LinearAlgebra
 using SparseArrays
 using Arpack
 using Plots
-#Pkg.add("Combinatorics")
 #Pkg.add("CUDA")
-using CUDA
+#using CUDA
 
 function Base_ind(Nsites)
     a = vec(collect(Base.Iterators.product(Base.Iterators.repeated(1:4, Nsites)...)))
@@ -258,7 +260,7 @@ function FindEn(Nsites, labels, ed, t, U, Ne)
 
 end
 
-Nsitios = 6
+Nsitios = 2
 
 indices = Base_ind(Nsitios)
 indices_sim = Symmetries(true, true, Nsitios%2, Nsitios, indices)
@@ -268,20 +270,8 @@ Hdim = length(indices_sim)
 t = 1
 U = 10  #@time
 
-#Hmu = Honsite(Nsitios, indices_sim, U/2)
-#Ht = Hhopping(Nsitios, indices_sim, t)
-#@cuda HU = Hint!(Nsitios, indices_sim, U)
-
-#H = Hmu + Ht + HU
-
-#data = eigen(H)
-#A = spzeros(Float32, Hdim, Hdim)
-#A[2, 2] = 1
-#CUa = CUSPARSE.CuSparseMatrixCSC(A)
-
-#eigvals, eigvecs= eigs(H, nev = 1, which=:SR, ritzvec = true)
 function rolha()
-    onsite = LinRange(0, U, 50)
+    onsite = LinRange(0, U, 100)
 
     #onsite = -U/2
 
@@ -319,7 +309,7 @@ using CSV
 x = (1/2 .-onsite./U)
 ind_ = sortperm(x) 
 #print(x[ind_])
-#CSV.write("U=2.csv", (mu = mu./U, x))
+CSV.write("ED_N2U5.csv", (mu = mu./U, x))
 
 #print(mu)
 

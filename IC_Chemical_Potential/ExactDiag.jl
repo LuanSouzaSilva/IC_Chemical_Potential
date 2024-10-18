@@ -309,12 +309,12 @@ using CSV
 x = (1/2 .-onsite./U)
 ind_ = sortperm(x) 
 #print(x[ind_])
-CSV.write("ED_N2U5.csv", (mu = mu./U, x))
+#CSV.write("ED_N2U5.csv", (mu = mu./U, x))
 
 #print(mu)
 
-p = plot(x[ind_], .-mu./U, seriestype=:scatter)
-display(p)
+#p = plot(x[ind_], .-mu./U, seriestype=:scatter)
+#display(p)
 
 #eigvals = data.values
 #print(eigvals)

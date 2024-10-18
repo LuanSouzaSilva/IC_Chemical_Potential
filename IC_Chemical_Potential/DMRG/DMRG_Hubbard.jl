@@ -8,11 +8,14 @@ Pkg.add("SparseArrays")
 Pkg.add("Arpack")
 Pkg.add("LinearAlgebra")
 Pkg.add("ProgressBars")
+Pkg.add("Strided")
 
 Pkg.instantiate()
 
-using ITensors, Plots, SparseArrays, Arpack, CSV, DataFrames, LinearAlgebra, ProgressBars
+using ITensors, Plots, SparseArrays, Arpack, CSV, DataFrames, LinearAlgebra, ProgressBars, Strided
 
+
+Threads.nthreads() = 32
 
 function Hubbard_DMRG(Nsites, t, U, ed)
     sites = siteinds("Electron", Nsites, conserve_nf = false)
@@ -42,18 +45,27 @@ function Hubbard_DMRG(Nsites, t, U, ed)
     #state = [isodd(n) ? "Up" : "Dn" for n=1:Nsites]
     #psi0 = MPS(sites,state)
 
-    nsweeps = 5
-    maxdim = [10, 20, 100, 200, 400, 500]
+    nsweeps = 10
+    maxdim = [10, 20, 100, 200, 400, 800, 1200]
     cutoff = [1E-12]
-
-    GS_energy, GS = dmrg(H,psi0;nsweeps,maxdim,cutoff, outputlevel = 0)
+    noise = [1E-5, 1E-7, 1E-8, 1E-10, 1E-12]
+ 
+    GS_energy1, GS = dmrg(H,psi0;nsweeps,maxdim,cutoff, noise, eigsolve_krylovdim = 7, outputlevel = 1)
+    GS_energy2 = inner(GS', H, GS)
 
     Nexp = expect(GS, "Ntot")
 
-    return GS_energy, Nexp
+    return GS_energy1, GS_energy2, Nexp
 end
 
 function Npart_DMRG(Nsites, t, U, ed, Npart)
+    Threads.nthreads() = 32
+
+    BLAS.set_num_threads(1)
+    Strided.set_num_threads(1)
+
+    ITensors.enable_threaded_blocksparse(true)
+
     sites = siteinds("Electron", Nsites, conserve_qns = true)
 
     os = OpSum()
@@ -89,13 +101,15 @@ function Npart_DMRG(Nsites, t, U, ed, Npart)
     end
     psi0 = randomMPS(sites,state, linkdims = 10)
 
-    nsweeps = 5
+    nsweeps = 10
     maxdim = [10, 20, 100, 200, 400, 800]
     cutoff = [1E-12]
+    noise = [1E-5, 1E-7, 1E-8, 1E-10, 1E-12]
 
-    GS_energy, GS = dmrg(H,psi0;nsweeps,maxdim,cutoff, outputlevel = 0)
+    GS_energy1, GS = dmrg(H, psi0; nsweeps, maxdim, cutoff, noise, eigsolve_krylovdim = 5, outputlevel = 0)
+    GS_energy2 = inner(GS', H, GS)
 
-    return GS_energy
+    return GS_energy1, GS_energy2
 
 end
 
@@ -150,8 +164,8 @@ function Roda_N(U, nsites_arr, filenames)
     end
 end
 
-Nsites = [10, 20, 40, 60, 100]
-Filenames = ["U10N10.csv", "U10N20.csv", "U10N40.csv", "U10N60.csv", "U10N100.csv"]
+Nsites = [10]#, 20, 40, 60, 100]
+Filenames = ["U10N10.csv"]#, "U10N20.csv", "U10N40.csv", "U10N60.csv", "U10N100.csv"]
 
 u = 10
 

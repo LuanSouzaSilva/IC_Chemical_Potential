@@ -15,18 +15,22 @@ Pkg.instantiate()
 
 using ITensors, Plots, SparseArrays, Arpack, CSV, DataFrames, LinearAlgebra, ProgressBars
 
-Threads.nthreads() = 32
+Threads.nthreads() = 64
 
 function Track_N(nsites, ed_arr, t, U)
+    Chem_pot = zeros(Float64, 0)
+    E1m2_arr = zeros(Float64, 0)
+    E1p2_arr = zeros(Float64, 0)
+    Npart_arr = zeros(Float64, 0)
+    E1_arr = zeros(Float64, 0)
 
-    GS_trial, _, Npart_trial_exp = Hubbard_DMRG(nsites, t, U, ed_arr[1])
+
+    GS_trial, Npart_trial_exp = Hubbard_DMRG(nsites, t, U, ed_arr[1])
     Npart_trial = round(sum(Npart_trial_exp))
 
-    #print(GS_trial, "      ", Npart_trial, "\n\n")
-
-    global GS_Nconserve, _ = Npart_DMRG(nsites, t, U, ed_arr[1], Npart_trial)
-    global GS_Nconservep1, _ = Npart_DMRG(nsites, t, U, ed_arr[1], Npart_trial + 1)
-    global GS_Nconservem1, _ = Npart_DMRG(nsites, t, U, ed_arr[1], Npart_trial - 1)
+    global GS_Nconserve = Npart_DMRG(nsites, t, U, ed_arr[1], Npart_trial)
+    global GS_Nconservep1 = Npart_DMRG(nsites, t, U, ed_arr[1], Npart_trial + 1)
+    global GS_Nconservem1 = Npart_DMRG(nsites, t, U, ed_arr[1], Npart_trial - 1)
         
     if GS_Nconserve < GS_Nconservem1 || GS_Nconserve < GS_Nconservep1
         global Npart = Npart_trial
@@ -36,47 +40,62 @@ function Track_N(nsites, ed_arr, t, U)
         global Npart = Npart_trial + 1
     end
 
-    Npart_arr = zeros(Float64, 0)
+    local E1 = Npart_DMRG(nsites, t, U, ed_arr[1], Npart_trial)
 
-    E1_arr = zeros(Float64, 0)
+    GSp1 = Npart_DMRG(nsites, t, U, ed_arr[1], Npart+1)
+    GSm1 = Npart_DMRG(nsites, t, U, ed_arr[1], Npart-1)
+
+    GSp2 = Npart_DMRG(nsites, t, U, ed_arr[1], Npart+2)
+    GSm2 = Npart_DMRG(nsites, t, U, ed_arr[1], Npart-2)
+
+    mu = (GSp1 - GSm1)/2
+
+    append!(E1m2_arr, GSm2)
+    append!(E1p2_arr, GSp2)
+
+    append!(Chem_pot, mu)
+
     append!(E1_arr, GS_Nconserve)
     append!(Npart_arr, Npart)
     for  i in tqdm(eachindex(ed_arr)[2:length(ed_arr)])
-        local GS_Nconserve, _ = Npart_DMRG(nsites, t, U, ed_arr[i], Npart)
-        local GS_Nconservep1, _ = Npart_DMRG(nsites, t, U, ed_arr[i], Npart + 1)
-        local GS_Nconservem1, _ = Npart_DMRG(nsites, t, U, ed_arr[i], Npart - 1)
-
+        local GS_Nconserve = Npart_DMRG(nsites, t, U, ed_arr[i], Npart)
+        local GS_Nconservep1 = Npart_DMRG(nsites, t, U, ed_arr[i], Npart + 1)
+        local GS_Nconservem1 = Npart_DMRG(nsites, t, U, ed_arr[i], Npart - 1)
 
         if GS_Nconserve < GS_Nconservem1 && GS_Nconserve < GS_Nconservep1
-            global Npart += 0
+            Npart += 0
+            local E1 = GS_Nconserve
+            local GSp1 = GS_Nconservep1
+            local GSm1 = GS_Nconservem1
         elseif GS_Nconservem1 < GS_Nconserve
-            global Npart -= 1
+            Npart -= 1
+            local E1 = GS_Nconservem1
+            local GSp1 = GS_Nconserve
+            local GSm1 = Npart_DMRG(nsites, t, U, ed_arr[i], Npart-1)
         elseif GS_Nconservep1 < GS_Nconserve
-            global Npart += 1
+            Npart += 1
+            local E1 = GS_Nconservep1
+            local GSm1 = GS_Nconserve
+            local GSp1 = Npart_DMRG(nsites, t, U, ed_arr[i], Npart+1)
         end
-        
-        #print(i, " -- ", ed_arr[i], " -- ", Npart, "\n")
-        #print(GS_Nconserve, "        ", GS_Nconservem1, "         ", GS_Nconservep1, "\n")
 
-        append!(E1_arr, GS_Nconserve)
+        GSp2 = Npart_DMRG(nsites, t, U, ed_arr[i], Npart+2)
+        GSm2 = Npart_DMRG(nsites, t, U, ed_arr[i], Npart-2)
+
+        mu = (GSp1 - GSm1)/2
+
+        append!(E1m2_arr, GSm2)
+        append!(E1p2_arr, GSp2)
+        #mu2 = (GSp12 - GSm12)/2
+
+        append!(Chem_pot, mu)
+
+        append!(E1_arr, E1)
         append!(Npart_arr, Npart)
 
     end
 
-
-    Chem_pot = zeros(Float64, 0)
-    Chem_pot2 = zeros(Float64, 0)
-    for i in tqdm(eachindex(ed_arr))
-        GSp1, GSp12 = Npart_DMRG(nsites, t, U, ed_arr[i], Npart_arr[i]+1)
-        GSm1, GSm12 = Npart_DMRG(nsites, t, U, ed_arr[i], Npart_arr[i]-1)
-
-        mu = (GSp1 - GSm1)/2
-        mu2 = (GSp12 - GSm12)/2
-
-        append!(Chem_pot, mu)
-        append!(Chem_pot2, mu2)
-    end
-        return Chem_pot, Chem_pot2, Npart_arr, E1_arr
+        return Chem_pot, Npart_arr, E1_arr, E1m2_arr, E1p2_arr
 
 end
 
@@ -84,20 +103,22 @@ function Roda_N(U, nsites_arr, filenames)
     ed_arr =  LinRange(0.9*U, 0.75*U, 100) #u/2 +- u/2
 
     for i in eachindex(nsites_arr)
-        Chem_Pot, _, Npart, E_gs = Track_N(nsites_arr[i], ed_arr, 1, U)
+        Chem_Pot, Npart, E_gs, Em2_gs, Ep2_gs = Track_N(nsites_arr[i], ed_arr, 1, U)
 
         df = DataFrame(Onsite_Energy = ed_arr,
                     Chemical_Potential = Chem_Pot,
                     N_particles = Npart,
-                    E1 = E_gs)
+                    E1 = E_gs,
+                    E1m2 = Em2_gs,
+                    E1p2 = Ep2_gs)
         
         CSV.write(filenames[i], df)
 
     end
 end
 
-Nsites = [40]#[10, 20, 40, 60, 100]
-Filenames = ["U10N40_Track2.csv"]#["U10N10_Track1.csv", "U10N20_Track1.csv", "U10N40_Track1.csv", "U10N60_Track1.csv", "U10N100_Track1.csv"]
+Nsites = [60, 100]#[10, 20, 40, 60, 100]
+Filenames = ["U10N60_Track3.csv", "U10N100_Track3.csv"]#["U10N10_Track1.csv", "U10N20_Track1.csv", "U10N40_Track1.csv", "U10N60_Track1.csv", "U10N100_Track1.csv"]
 u = 10
 
 Roda_N(u, Nsites, Filenames)

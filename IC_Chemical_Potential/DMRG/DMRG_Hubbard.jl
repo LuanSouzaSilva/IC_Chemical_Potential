@@ -15,7 +15,7 @@ Pkg.instantiate()
 using ITensors, Plots, SparseArrays, Arpack, CSV, DataFrames, LinearAlgebra, ProgressBars, Strided
 
 
-Threads.nthreads() = 32
+Threads.nthreads() = 64
 
 function Hubbard_DMRG(Nsites, t, U, ed)
     sites = siteinds("Electron", Nsites, conserve_nf = false)
@@ -51,16 +51,14 @@ function Hubbard_DMRG(Nsites, t, U, ed)
     noise = [1E-5, 1E-7, 1E-8, 1E-10, 1E-12]
  
     GS_energy1, GS = dmrg(H,psi0;nsweeps,maxdim,cutoff, noise, eigsolve_krylovdim = 7, outputlevel = 1)
-    GS_energy2 = inner(GS', H, GS)
+    #GS_energy2 = inner(GS', H, GS)
 
     Nexp = expect(GS, "Ntot")
 
-    return GS_energy1, GS_energy2, Nexp
+    return GS_energy1, Nexp#GS_energy2, Nexp
 end
 
 function Npart_DMRG(Nsites, t, U, ed, Npart)
-    Threads.nthreads() = 32
-
     BLAS.set_num_threads(1)
     Strided.set_num_threads(1)
 
@@ -107,9 +105,9 @@ function Npart_DMRG(Nsites, t, U, ed, Npart)
     noise = [1E-5, 1E-7, 1E-8, 1E-10, 1E-12]
 
     GS_energy1, GS = dmrg(H, psi0; nsweeps, maxdim, cutoff, noise, eigsolve_krylovdim = 5, outputlevel = 0)
-    GS_energy2 = inner(GS', H, GS)
+    #GS_energy2 = inner(GS', H, GS)
 
-    return GS_energy1, GS_energy2
+    return GS_energy1#, GS_energy2
 
 end
 

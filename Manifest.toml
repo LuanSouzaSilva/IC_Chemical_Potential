@@ -2,7 +2,7 @@
 
 julia_version = "1.9.3"
 manifest_format = "2.0"
-project_hash = "d3d86614d520642b2a7ef788d6b4faa65a74df7a"
+project_hash = "c62b4da2e7b5d35367217c3515bc11e85b2113cf"
 
 [[deps.Accessors]]
 deps = ["CompositionsBase", "ConstructionBase", "Dates", "InverseFunctions", "LinearAlgebra", "MacroTools", "Markdown", "Test"]
@@ -1208,9 +1208,9 @@ version = "0.34.3"
 
 [[deps.Strided]]
 deps = ["LinearAlgebra", "StridedViews", "TupleTools"]
-git-tree-sha1 = "bd9bd1c70cfc115cc3a30213fc725125a6b43652"
+git-tree-sha1 = "d85461cb47420b6dcecf51de8142fc60484dd0b3"
 uuid = "5e0ebb24-38b0-5f93-81fe-25c709ecae67"
-version = "2.1.0"
+version = "2.1.1"
 
 [[deps.StridedViews]]
 deps = ["LinearAlgebra", "PackageExtensionCompat"]

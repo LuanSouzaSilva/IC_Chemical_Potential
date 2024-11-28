@@ -246,7 +246,7 @@ function FindEn(Nsites, labels, ed, t, U, Ne)
     Ht = Hhopping(Nsites, indices_sim, t)
     HU = Hint(Nsites, indices_sim, U)
 
-    Ham = Ht + HU + Hed + sparse(I, Hdim, Hdim)*U*Nsites/4
+    Ham = Ht + HU + Hed #+ sparse(I, Hdim, Hdim)*U*Nsites/4
 
     try
         eigvals, _= eigs(Ham, nev = 1, which=:SR, ritzvec = true)
@@ -260,15 +260,20 @@ function FindEn(Nsites, labels, ed, t, U, Ne)
 
 end
 
-Nsitios = 2
+Nsitios = 6
 
 indices = Base_ind(Nsitios)
-indices_sim = Symmetries(true, true, Nsitios%2, Nsitios, indices)
+indices_sim = Symmetries(false, true, Nsitios%2, Nsitios, indices)
 
 Hdim = length(indices_sim)
 
 t = 1
-U = 10  #@time
+U_arr = [0., 1., 1.5, 2., 2.5, 3., 3.5, 4., 5., 10., 12., 14., 16., 18., 20., 30., 40., 50.]  #@time
+
+for i in eachindex(U_arr)
+    local E = FindEn(Nsitios, indices, U_arr[i]/2, t, U_arr[i], Nsitios)
+    print("\n", E, " --- ", U_arr[i], "\n\n")
+end
 
 function rolha()
     onsite = LinRange(0, U, 100)
@@ -300,14 +305,14 @@ function rolha()
     return mu, os
 end
 
-mu, onsite = rolha()
+#mu, onsite = rolha()
 
-using CSV
+#using CSV
 
 #print(mu)
 
-x = (1/2 .-onsite./U)
-ind_ = sortperm(x) 
+#x = (1/2 .-onsite./U)
+#ind_ = sortperm(x) 
 #print(x[ind_])
 #CSV.write("ED_N2U5.csv", (mu = mu./U, x))
 

@@ -275,6 +275,8 @@ for i in eachindex(U_arr)
     print("\n", E, " --- ", U_arr[i], "\n\n")
 end
 
+
+U = 10
 function rolha()
     onsite = LinRange(0, U, 100)
 
@@ -282,6 +284,7 @@ function rolha()
 
     mu = zeros(Float64, 0)
     os = zeros(Float64, 0)
+    CG = zeros(Float64, 0)
     contador = 0
     for ed in onsite
         Numgs = FindNGS(Nsitios, indices, ed, t, U)
@@ -291,8 +294,14 @@ function rolha()
         Ep1 = FindEn(Nsitios, indices, ed, t, U, Np1)
         Em1 = FindEn(Nsitios, indices, ed, t, U, Nm1)
 
+        E0 = FindEn(Nsitios, indices, ed, t, U, Numgs)
+        Ep2 = FindEn(Nsitios, indices, ed, t, U, Np1+1)
+        Em2 = FindEn(Nsitios, indices, ed, t, U, Nm1-1)
+
         try
             aux = (Ep1 - Em1)/2
+            aux2 = (Ep2 + Em2 - 2*E0)/2
+            append!(CG, aux2)
             append!(mu, aux)
             append!(os, ed)
         catch
@@ -302,19 +311,19 @@ function rolha()
         contador += 1
         print(round(100*contador/length(onsite)), '\n')
     end
-    return mu, os
+    return mu, os, CG
 end
 
-#mu, onsite = rolha()
+mu, onsite, ChargeGap = rolha()
 
-#using CSV
+using CSV
 
 #print(mu)
 
-#x = (1/2 .-onsite./U)
-#ind_ = sortperm(x) 
+x = (1/2 .-onsite./U)
+ind_ = sortperm(x) 
 #print(x[ind_])
-#CSV.write("ED_N2U5.csv", (mu = mu./U, x))
+CSV.write("ED_N6U10.csv", (mu = mu./U, x = x, ChargeGap = ChargeGap))
 
 #print(mu)
 

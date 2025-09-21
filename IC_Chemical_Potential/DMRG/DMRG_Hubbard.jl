@@ -15,7 +15,7 @@ Pkg.instantiate()
 using ITensors, Plots, SparseArrays, Arpack, CSV, DataFrames, LinearAlgebra, ProgressBars, Strided
 
 
-Threads.nthreads() = 64
+Threads.nthreads() = 8
 
 function Hubbard_DMRG(Nsites, t, U, ed)
     sites = siteinds("Electron", Nsites, conserve_nf = false)
@@ -45,8 +45,11 @@ function Hubbard_DMRG(Nsites, t, U, ed)
     #state = [isodd(n) ? "Up" : "Dn" for n=1:Nsites]
     #psi0 = MPS(sites,state)
 
-    nsweeps = 10
-    maxdim = [10, 20, 100, 200, 400, 800, 1200]
+    nsweeps = 100
+    maxdim1 = ones(Int, 40).*10
+    maxdim2 = ones(Int, 50).*20
+    maxdim3 = [40, 40, 80, 80,  100, 100, 200, 200, 400, 500]
+    maxdim = [maxdim1; maxdim2; maxdim3]
     cutoff = [1E-12]
     noise = [1E-5, 1E-7, 1E-8, 1E-10, 1E-12]
  
@@ -99,8 +102,11 @@ function Npart_DMRG(Nsites, t, U, ed, Npart)
     end
     psi0 = randomMPS(sites,state, linkdims = 10)
 
-    nsweeps = 10
-    maxdim = [10, 20, 100, 200, 400, 800]
+    nsweeps = 100
+    maxdim1 = ones(Int, 40).*10
+    maxdim2 = ones(Int, 50).*20
+    maxdim3 = [40, 40, 80, 80,  100, 100, 200, 200, 400, 500]
+    maxdim = [maxdim1; maxdim2; maxdim3]
     cutoff = [1E-12]
     noise = [1E-5, 1E-7, 1E-8, 1E-10, 1E-12]
 

@@ -117,8 +117,8 @@ function Roda_N(U, nsites_arr, filenames)
     end
 end
 
-Nsites = [60, 100]#[10, 20, 40, 60, 100]
-Filenames = ["U10N60_Track3.csv", "U10N100_Track3.csv"]#["U10N10_Track1.csv", "U10N20_Track1.csv", "U10N40_Track1.csv", "U10N60_Track1.csv", "U10N100_Track1.csv"]
+Nsites = [40]#[10, 20, 40, 60, 100]
+Filenames = ["U10N60_Track3_TESTE1.csv"]#["U10N10_Track1.csv", "U10N20_Track1.csv", "U10N40_Track1.csv", "U10N60_Track1.csv", "U10N100_Track1.csv"]
 u = 10
 
 Roda_N(u, Nsites, Filenames)
